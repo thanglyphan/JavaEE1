@@ -24,10 +24,10 @@ public class Post {
     @OneToMany
     private List<User> downvotedBy;
 
-    /*
+
     @OneToMany(mappedBy = "post")
     private List<Comment> comments;
-    */
+
 
     public Post(){
         this.date = "123";
@@ -35,13 +35,13 @@ public class Post {
         upvotedBy = new ArrayList<>();
         downvotedBy = new ArrayList<>();
     }
-    /*public void addComment(Comment a){
+    public void addComment(Comment a){
         this.comments.add(a);
     }
     public List<Comment> getComments(){
         return comments;
     }
-    */
+
     public String getPostId() {
         return postId;
     }

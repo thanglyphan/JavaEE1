@@ -2,15 +2,12 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import javax.jws.soap.SOAPBinding;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityTransaction;
 import javax.persistence.Persistence;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
 
 import static org.junit.Assert.*;
 
@@ -145,7 +142,7 @@ public class UserTest {
         post.printDownvoted();
         post.printUpvoted();
         //As you can see, this is correctly implemented :)
-        /*
+
         Comment comment = new Comment();
         comment.setUser(user);
         comment.setMessage("Fuck off");
@@ -155,8 +152,8 @@ public class UserTest {
         post.addComment(comment);
         em.merge(post);
 
-        assertEquals("Fuck off", post.getComments().get(0).getMessage());
-        */
+        assertEquals("This should fail", post.getComments().get(0).getMessage());
+
     }
 
 }
