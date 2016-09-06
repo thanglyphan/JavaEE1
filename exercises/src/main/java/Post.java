@@ -1,5 +1,4 @@
 import javax.persistence.*;
-import javax.xml.stream.StreamFilter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -8,8 +7,8 @@ import java.util.List;
  */
 @Entity
 public class Post {
-    @Id
-    private String postId;
+    @Id @GeneratedValue
+    private Long postId;
     @ManyToOne
     private User user;
 
@@ -24,30 +23,18 @@ public class Post {
     @OneToMany
     private List<User> downvotedBy;
 
-
-    @OneToMany(mappedBy = "post")
+    @OneToMany(mappedBy = "thePost")
     private List<Comment> comments;
-
 
     public Post(){
         this.date = "123";
-        //comments = new ArrayList<>();
+        comments = new ArrayList<>();
         upvotedBy = new ArrayList<>();
         downvotedBy = new ArrayList<>();
     }
-    public void addComment(Comment a){
-        this.comments.add(a);
-    }
-    public List<Comment> getComments(){
-        return comments;
-    }
 
-    public String getPostId() {
+    public Long getPostId() {
         return postId;
-    }
-
-    public void setPostId(String postId) {
-        this.postId = postId;
     }
 
     public User getUser() {
@@ -57,7 +44,6 @@ public class Post {
     public void setUser(User user) {
         this.user = user;
         this.author = user.getFirstname() + " " + user.getLastname();
-        this.postId = user.getEmail();
     }
 
     public String getMessage() {
@@ -94,6 +80,7 @@ public class Post {
         return false;
     }
 
+
     public boolean getDownvotedBy(User a){
         for(User b: downvotedBy){
             if(b.equals(a)){
@@ -101,6 +88,12 @@ public class Post {
             }
         }
         return false;
+    }
+    public List<User> getWhoUpvoted(){
+        return upvotedBy;
+    }
+    public List<User> getWhoDownvoted(){
+        return downvotedBy;
     }
 
     public void printUpvoted(){
@@ -115,5 +108,13 @@ public class Post {
         for(User a: downvotedBy){
             System.out.println(a);
         }
+    }
+
+    public List<Comment> getComments() {
+        return comments;
+    }
+
+    public void setComments(Comment a){
+        getComments().add(a);
     }
 }

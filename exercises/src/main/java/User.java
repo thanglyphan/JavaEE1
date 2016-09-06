@@ -22,7 +22,6 @@ public class User {
     private List<Post> post;
 
 
-
     public String getFirstname() {
         return firstname;
     }
@@ -59,10 +58,6 @@ public class User {
         return userId;
     }
 
-    public void setUserId(long userId) {
-        this.userId = userId;
-    }
-
     public List<Post> getPost() {
         return post;
     }
@@ -78,4 +73,5 @@ public class User {
     public String toString(){
         return getFirstname() + " " + getLastname() + "\n" + getEmail();
     }
+
 }

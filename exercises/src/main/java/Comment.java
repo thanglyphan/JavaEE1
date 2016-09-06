@@ -1,5 +1,4 @@
 import javax.persistence.Entity;
-import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 
 /**
@@ -7,9 +6,9 @@ import javax.persistence.ManyToOne;
  */
 @Entity
 public class Comment extends Post{
-    @Id
-    private String id;
-    @ManyToOne
-    private Post post;
 
+    @ManyToOne
+    private Post thePost;
+
+    public Comment(){}
 }

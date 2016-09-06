@@ -123,7 +123,7 @@ public class UserTest {
 
         //Find the post i want to modify and clear cache afterwards.
         Post found = em.find(Post.class, post.getPostId());
-        assertEquals(user.getEmail(), found.getPostId());
+        assertEquals(post.getPostId(), found.getPostId());
         em.clear();
 
         //Start to add upvotes/downvotes, and check if the upvote/downvote is added by THAT user.
@@ -142,18 +142,50 @@ public class UserTest {
         post.printDownvoted();
         post.printUpvoted();
         //As you can see, this is correctly implemented :)
-
-        Comment comment = new Comment();
-        comment.setUser(user);
-        comment.setMessage("Fuck off");
-        assertTrue(persistInATransaction(comment));
-        em.clear();
-        em.getTransaction().begin();
-        post.addComment(comment);
-        em.merge(post);
-
-        assertEquals("This should fail", post.getComments().get(0).getMessage());
-
     }
 
+    @Test
+    public void testPostCanHaveComments(){
+        //Creating a post and comment
+        Post post = new Post();
+        Comment comment = new Comment();
+        comment.setMessage("Lol");
+
+        //Set comment into "post"
+        post.setComments(comment);
+        //And persist
+        assertTrue(persistInATransaction(post));
+
+        //Creating new comment and add that new comment to the old comment.
+        Comment newComment = new Comment();
+        newComment.setMessage("Fuck");
+        Comment newComment2 = new Comment();
+        newComment.setMessage("Fuck");
+        comment.setComments(newComment);
+        comment.setComments(newComment2);
+
+        //Merge changes to the old comment.
+        em.merge(comment);
+
+        //User upvotes one comment
+        User user = new User();
+        user.setFirstname("Thang");
+        assertTrue(persistInATransaction(user));
+        comment.setUpvotes(1, user);
+
+        //Check who if "user" upvoted
+        assertTrue(comment.getUpvotedBy(user));
+        //Find out who upvoted
+        assertEquals("Thang", comment.getWhoUpvoted().get(0).getFirstname());
+
+        assertEquals("Lol", comment.getMessage());
+        assertEquals(1, comment.getUpvotes());
+        assertEquals(0, comment.getComments().get(0).getUpvotes());
+        assertEquals("Fuck", comment.getComments().get(0).getMessage());
+
+        //How many comments are inside "comment"
+        assertEquals(2, comment.getComments().size());
+        //How many comments are inside "post"
+        assertEquals(1, post.getComments().size());
+    }
 }
