@@ -8,6 +8,9 @@ import java.util.List;
 @Entity
 @NamedQueries(value = {
         @NamedQuery(name = User.FIND_ALL_USER_COUNTRIES, query = "SELECT a.address.country FROM User a"),
+        @NamedQuery(name = User.FIND_ALL, query = "SELECT a FROM User a"),
+        @NamedQuery(name = User.FIND_ALL_USER_IN_COUNTRY, query = "SELECT a FROM User a WHERE a.address.country LIKE ?1"),
+        @NamedQuery(name = User.FIND_TOP_POSTERS, query = "SELECT a FROM User a WHERE a.post.size >= ?1 order by post.size desc ")
 })
 public class User {
 
@@ -15,6 +18,9 @@ public class User {
     private long userId;
 
     public static final String FIND_ALL_USER_COUNTRIES = "User.find_all_user_countries";
+    public static final String FIND_ALL = "User.find_all";
+    public static final String FIND_ALL_USER_IN_COUNTRY = "User.find_all_user_in_country";
+    public static final String FIND_TOP_POSTERS = "User.find_top_posters";
     private String firstname;
     private String lastname;
     private String email;

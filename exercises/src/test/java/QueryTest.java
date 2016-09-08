@@ -83,6 +83,18 @@ public class QueryTest {
         }
         //We have now two countries in our list, three users have one adress each, two users lives in Norway, one in Sweden.
         assertTrue(!countries.isEmpty());
+
+        //Now we find all users in Norway.
+        query = em.createNamedQuery("User.find_all_user_in_country");
+        query.setParameter(1, "Norway");
+        //Two users live in Norway, one user live in Sweden.
+        assertEquals(2, query.getResultList().size());
+        query.setParameter(1, "Sweden");
+        assertEquals(1, query.getResultList().size());
+
+        //Lets find all the users in the database, should be three.
+        query = em.createNamedQuery("User.find_all");
+        assertEquals(3, query.getResultList().size());
     }
     @Test
     public void testFindAllPost(){
@@ -96,7 +108,7 @@ public class QueryTest {
         user3.setAddress(adr2);
         user1.setPost(new ArrayList<>()); user2.setPost(new ArrayList<>()); user3.setPost(new ArrayList<>());
 
-        Post post1 = new Post(); Post post2 = new Post(); Post post3 = new Post();
+        Post post1 = new Post(); Post post2 = new Post(); Post post3 = new Post(); Post post4 = new Post();
 
         post1.setUser(user1);
         post1.setMessage("First");
@@ -104,32 +116,53 @@ public class QueryTest {
         post2.setMessage("Second");
         post3.setUser(user3);
         post3.setMessage("Third");
+        post4.setUser(user1);
+        post4.setMessage("Fourth");
+
+        user1.setFirstname("Per");
+        user1.setLastname("Bjarne");
+        user1.setEmail("p.b@gmail.com");
 
         user1.addToPost(post1);
+        user1.addToPost(post4);
         user2.addToPost(post2);
         user3.addToPost(post3);
 
-        assertTrue(persistInATransaction(user1, user2, user3, post1, post2, post3, adr1, adr2));
+        assertTrue(persistInATransaction(user1, user2, user3, post1, post2, post3, post4, adr1, adr2));
 
         Query query = em.createNamedQuery("Post.find_all");
 
         List<Post> posts = query.getResultList();
 
         //Finally test all three posts are in the list of query.
-        assertEquals(3, posts.size());
+        assertEquals(4, posts.size());
 
         //Now, we find all post in Norway.
         Query countryQuery = em.createNamedQuery("Post.find_all_in_country");
         countryQuery.setParameter(1, "Norway");
 
         List<Post> countries = countryQuery.getResultList();
-        //Now, there are two posts from Norway.
-        assertEquals(2, countries.size());
+        //Now, there are three posts from Norway.
+        assertEquals(3, countries.size());
 
         //Now, we test post in Vietnam, there are only one.
         countryQuery.setParameter(1, "Vietnam");
         countries = countryQuery.getResultList();
         assertEquals(1, countries.size());
+
+        //Now, we test top posters, who is it. We set parameter like 2 "post", Per is only one. If we set to 1, all users posted one post comming.
+        Query qa = em.createNamedQuery("User.find_top_posters");
+        qa.setParameter(1, 2);
+
+        List<User> users = qa.getResultList();
+
+        for(User a: users){
+            System.out.println(a);
+        }
+        //We check if the first person in the list is top poster called "Per"
+        assertEquals("Per", users.get(0).getFirstname());
+
+
 
 
 
