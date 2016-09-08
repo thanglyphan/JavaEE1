@@ -6,11 +6,15 @@ import java.util.List;
  */
 
 @Entity
+@NamedQueries(value = {
+        @NamedQuery(name = User.FIND_ALL_USER_COUNTRIES, query = "SELECT a.address.country FROM User a"),
+})
 public class User {
 
     @Id @GeneratedValue
     private long userId;
 
+    public static final String FIND_ALL_USER_COUNTRIES = "User.find_all_user_countries";
     private String firstname;
     private String lastname;
     private String email;

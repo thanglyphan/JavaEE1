@@ -6,11 +6,18 @@ import java.util.List;
  * Created by thang on 06.09.2016.
  */
 @Entity
+@NamedQueries(value = {
+        @NamedQuery(name = Post.FIND_ALL, query = "SELECT a FROM Post a"),
+        @NamedQuery(name = Post.FIND_ALL_IN_COUNTRY, query = "SELECT a FROM Post a WHERE a.user.address.country LIKE ?1")
+})
 public class Post {
     @Id @GeneratedValue
     private Long postId;
     @ManyToOne
     private User user;
+
+    public static final String FIND_ALL = "Post.find_all";
+    public static final String FIND_ALL_IN_COUNTRY = "Post.find_all_in_country";
 
     private String message;
     private int upvotes;
