@@ -1,5 +1,13 @@
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Past;
+import javax.validation.constraints.Size;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -13,16 +21,26 @@ import java.util.List;
 public class Post {
     @Id @GeneratedValue
     private Long postId;
-    @ManyToOne
+
+    @ManyToOne @NotNull
     private User user;
 
     public static final String FIND_ALL = "Post.find_all";
     public static final String FIND_ALL_IN_COUNTRY = "Post.find_all_in_country";
 
+    @NotNull @Size(min = 1, max = 300)
     private String message;
+
     private int upvotes;
+
     private int downvotes;
-    private String date;
+
+    @Past
+    @NotNull
+    @Temporal(TemporalType.DATE)
+    private Date date;
+
+    @NotNull
     private String author;
 
     @OneToMany
@@ -34,10 +52,15 @@ public class Post {
     private List<Comment> comments;
 
     public Post(){
-        this.date = "123";
+        this.date = new Date();
+        LocalDateTime localDate = LocalDateTime.now();
+        date = date.from(localDate.atZone(ZoneId.systemDefault()).toInstant());
         comments = new ArrayList<>();
         upvotedBy = new ArrayList<>();
         downvotedBy = new ArrayList<>();
+    }
+    public Date getDate(){
+        return date;
     }
 
     public Long getPostId() {

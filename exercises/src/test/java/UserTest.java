@@ -5,6 +5,8 @@ import org.junit.Test;
 
 import javax.persistence.*;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -52,52 +54,58 @@ public class UserTest {
 
     @Test
     public void testEmptyUser(){
-        User user = new User();
+        User user = getValidUser();
         assertTrue(persistInATransaction(user));
+    }
+
+    private User getValidUser(){
+        User user = new User();
+        user.setFirstname("Thang");
+        user.setLastname("Phan");
+        user.setEmail("lyern52@gmail.com");
+        Address adr = new Address();
+        adr.setCountry("Norway");
+        adr.setCity("Oslo");
+        adr.setPostcode(1722);
+        em.persist(adr);
+        user.setAddress(adr);
+        return user;
     }
 
     @Test
     public void testUserWithAddress(){
         //Create user and adress.
-        User user = new User();
-        Address address = new Address();
-        address.setCity("Oslo");
-        address.setCountry("Norway");
-        address.setPostcode(0372);
+        User user = getValidUser();
 
-        //Persisting user with no address.
+        user.getAddress().setCity("Oslo");
+        user.getAddress().setCountry("Norway");
+        user.getAddress().setPostcode(0372);
+
+        //Persisting user with address.
         assertTrue(persistInATransaction(user));
-        assertNull(user.getAddress());
 
         //Clear the cache
         em.clear();
 
         //Now we add address to user, persist address first.
-        assertTrue(persistInATransaction(address));
-        user.setAddress(address);
         em.getTransaction().begin();
         em.merge(user);
 
         //Find the user with the user id generated.
         User user1 = em.find(User.class, user.getUserId());
 
-        assertEquals(address.getCity(), user1.getAddress().getCity());
+        assertEquals(user.getAddress().getCity(), user1.getAddress().getCity());
     }
 
     @Test
     public void testAddingPostWithUpvotesAndDownvotes(){
         //Make user.
-        User user = new User();
-        user.setFirstname("Thang");
-        user.setLastname("Phan");
-        user.setEmail("Lyern52@gmail.com");
+        User user = getValidUser();
 
         //Make address.
-        Address address = new Address();
-        address.setCity("Oslo");
-        address.setCountry("Norway");
-        address.setPostcode(0372);
-        user.setAddress(address);
+        user.getAddress().setCity("Oslo");
+        user.getAddress().setCountry("Norway");
+        user.getAddress().setPostcode(0372);
 
         //Make post.
         Post post = new Post();
@@ -109,13 +117,13 @@ public class UserTest {
         user.addToPost(post);
 
         //Check if this is good.
-        assertTrue(persistInATransaction(user, address, post));
+        assertTrue(persistInATransaction(user, post));
         assertEquals(post.getMessage(), user.getPost().get(0).getMessage());
 
         //Adding upvotes and downvotes on post created by specific user.
-        User user2 = new User();
-        user2.setFirstname("Thang2");
-        user2.setLastname("Phan2");
+        User user2 = getValidUser();
+        user2.setFirstname("Thangyo");
+        user2.setLastname("Phanyo");
         user2.setEmail("2Lyern52@gmail.com");
 
         assertTrue(persistInATransaction(user2));
@@ -147,45 +155,74 @@ public class UserTest {
     public void testPostCanHaveComments(){
         //Creating a post and comment
         Post post = new Post();
+        post.setMessage("Testing the message");
+
+        //New user wrote this comment.
         Comment comment = new Comment();
         comment.setMessage("Lol");
+        comment.setThePost(post);
 
+        User newUser = getValidUser();
+        newUser.setFirstname("Test");
+        newUser.setLastname("Tester");
+        newUser.setEmail("Test@test.no");
+        newUser.setPost(new ArrayList<>());
+        newUser.addToPost(comment);
+        comment.setUser(newUser);
         //Set comment into "post"
         post.setComments(comment);
-        //And persist
-        assertTrue(persistInATransaction(post));
+
+        User u = getValidUser();
+        u.setPost(new ArrayList<>());
+        u.addToPost(post);
+
+        post.setUser(u);
+        //And persist, then check who created post, who created first comment.
+        assertTrue(persistInATransaction(u, newUser, post, comment)); //Works even when I dont persist post and comment.
+        assertEquals(u.getFirstname(), post.getUser().getFirstname());
+        assertEquals(newUser.getFirstname(), comment.getUser().getFirstname());
+        //Now, one user have one registered post and comment in his name.
 
         //Creating new comment and add that new comment to the old comment.
         Comment newComment = new Comment();
-        newComment.setMessage("Fuck");
+        newComment.setMessage("The message1");
+        newComment.setUser(u);
         Comment newComment2 = new Comment();
-        newComment.setMessage("Fuck");
+        newComment2.setMessage("The message2");
+        newComment2.setUser(u);
         comment.setComments(newComment);
         comment.setComments(newComment2);
 
-        //Merge changes to the old comment.
-        em.merge(comment);
 
         //User upvotes one comment
-        User user = new User();
-        user.setFirstname("Thang");
+        User user = getValidUser();
+        user.setFirstname("Thango");
+        user.setLastname("Mango");
+        user.setEmail("Thang-phan@outlook.com");
+
+        user.setPost(new ArrayList<>());
+        user.addToPost(newComment);
+        user.addToPost(newComment2);
+
         assertTrue(persistInATransaction(user));
         comment.setUpvotes(1, user);
 
         //Check who if "user" upvoted
         assertTrue(comment.getUpvotedBy(user));
         //Find out who upvoted
-        assertEquals("Thang", comment.getWhoUpvoted().get(0).getFirstname());
+        assertEquals("Thango", comment.getWhoUpvoted().get(0).getFirstname());
 
         assertEquals("Lol", comment.getMessage());
         assertEquals(1, comment.getUpvotes());
         assertEquals(0, comment.getComments().get(0).getUpvotes());
-        assertEquals("Fuck", comment.getComments().get(0).getMessage());
+        assertEquals("The message1", comment.getComments().get(0).getMessage());
 
         //How many comments are inside "comment"
         assertEquals(2, comment.getComments().size());
         //How many comments are inside "post"
         assertEquals(1, post.getComments().size());
+        System.out.println(comment.getDate());
+
     }
 
 

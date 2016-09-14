@@ -49,22 +49,34 @@ public class QueryTest {
         return true;
     }
 
+
+    private User getValidUser(){
+        User user = new User();
+        user.setFirstname("Thang");
+        user.setLastname("Phan");
+        user.setEmail("lyern52@gmail.com");
+        Address adr = new Address();
+        adr.setCountry("Norway");
+        adr.setCity("Oslo");
+        adr.setPostcode(1722);
+        em.persist(adr);
+        user.setAddress(adr);
+        return user;
+    }
+
     @Test
     public void testGetAllCountriesOfUser(){
         //Init objects
-        User user = new User();
-        User user1 = new User();
-        User user2 = new User();
-        Address adr2 = new Address();
-        adr2.setCountry("Sweden");
-        Address adr = new Address();
-        adr.setCountry("Norway");
-        user2.setAddress(adr2);
-        user1.setAddress(adr);
-        user.setAddress(adr);
+        User user = getValidUser();
+        User user1 = getValidUser();
+        User user2 = getValidUser();
+
+        user2.getAddress().setCountry("Sweden");
+        user1.getAddress().setCountry("Norway");
+        user.getAddress().setCountry("Norway");
 
         //Try persist
-        assertTrue(persistInATransaction(user, user1, user2, adr, adr2));
+        assertTrue(persistInATransaction(user, user1, user2));
 
         //Create the query
         Query query = em.createNamedQuery("User.find_all_user_countries");
@@ -98,14 +110,13 @@ public class QueryTest {
     }
     @Test
     public void testFindAllPost(){
-        User user1 = new User(); User user2 = new User(); User user3 = new User();
-        Address adr1 = new Address();
-        Address adr2 = new Address();
-        adr1.setCountry("Norway");
-        adr2.setCountry("Vietnam");
-        user1.setAddress(adr1);
-        user2.setAddress(adr1);
-        user3.setAddress(adr2);
+        User user1 = getValidUser();
+        User user2 = getValidUser();
+        User user3 = getValidUser();
+
+        user1.getAddress().setCountry("Norway");
+        user2.getAddress().setCountry("Norway");
+        user3.getAddress().setCountry("Vietnam");
         user1.setPost(new ArrayList<>()); user2.setPost(new ArrayList<>()); user3.setPost(new ArrayList<>());
 
         Post post1 = new Post(); Post post2 = new Post(); Post post3 = new Post(); Post post4 = new Post();
@@ -128,7 +139,7 @@ public class QueryTest {
         user2.addToPost(post2);
         user3.addToPost(post3);
 
-        assertTrue(persistInATransaction(user1, user2, user3, post1, post2, post3, post4, adr1, adr2));
+        assertTrue(persistInATransaction(user1, user2, user3, post1, post2, post3, post4));
 
         Query query = em.createNamedQuery("Post.find_all");
 
