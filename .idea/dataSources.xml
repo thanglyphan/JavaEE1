@@ -24,6 +24,14 @@
       <remarks>$PROJECT_DIR$/exercises/src/main/resources/META-INF/persistence.xml</remarks>
       <jdbc-driver>org.h2.Driver</jdbc-driver>
       <jdbc-url>jdbc:h2:./target/db</jdbc-url>
+      <libraries>
+        <library>
+          <url>file://$APPLICATION_CONFIG_DIR$/jdbc-drivers/h2-license.txt</url>
+        </library>
+        <library>
+          <url>file://$APPLICATION_CONFIG_DIR$/jdbc-drivers/h2-1.3.176.jar</url>
+        </library>
+      </libraries>
     </data-source>
   </component>
 </project>

@@ -11,6 +11,7 @@
             <!-- This is needed to tell Arquillian where to Wildfly installation is -->
             <property name="jbossHome">target/downloaded_Wildfly/wildfly-10.1.0.Final</property>
             <property name="outputToConsole">true</property>
+            <property name="allowConnectingToRunningServer">true</property>
         </configuration>
     </container>
 
