@@ -16,6 +16,7 @@ import java.util.List;
 @Entity
 @NamedQueries(value = {
         @NamedQuery(name = Post.FIND_ALL, query = "SELECT a FROM Post a"),
+        @NamedQuery(name = Post.FIND_ALL_COMMENTS_IN_ONE_POST, query = "SELECT a FROM Comment a WHERE a.thePost.postId = ?1"),
         @NamedQuery(name = Post.FIND_ALL_IN_COUNTRY, query = "SELECT a FROM Post a WHERE a.user.address.country LIKE ?1")
 })
 public class Post {
@@ -25,6 +26,7 @@ public class Post {
     @ManyToOne @NotNull
     private User user;
 
+    public static final String FIND_ALL_COMMENTS_IN_ONE_POST = "Post.find_all_comments_in_one_post";
     public static final String FIND_ALL = "Post.find_all";
     public static final String FIND_ALL_IN_COUNTRY = "Post.find_all_in_country";
 
@@ -146,5 +148,9 @@ public class Post {
 
     public void setComments(Comment a){
         getComments().add(a);
+    }
+
+    public String toString(){
+        return getMessage();
     }
 }

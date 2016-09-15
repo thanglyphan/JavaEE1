@@ -31,15 +31,14 @@ public class UserBean{
     public boolean createPostFromGivenUser(User user, Post post){
         user.setPost(new ArrayList<>());
         user.addToPost(post);
+
         persistInATransaction(post);
         em.merge(user);
-
         User found = findUserByEmail(user.getEmail());
 
         if(found.getPost().size() > 0){
             return true;
         }
-
         return false;
     }
 

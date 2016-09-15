@@ -66,33 +66,62 @@ public class UserBeanTest {
 
     @Test
     public void testcreatePostFromGivenUser(){
-        User found = userBean.findUserByEmail("Lyern52@gmail.com");
-        User found2 = userBean.findUserByEmail("Lyerno@gmail.com");
+        //Finding users
+        User thang = userBean.findUserByEmail("Lyern52@gmail.com");
+        User hassan = userBean.findUserByEmail("Lyerno@gmail.com");
 
+        //Create one new post. Post created by Thang
         Post post = new Post();
-        post.setUser(found);
+        post.setUser(thang);
         post.setMessage("You have one received message");
 
-        assertTrue(userBean.createPostFromGivenUser(found, post));
+        //Add the post to given user. Thang owns the post now.
+        assertTrue(userBean.createPostFromGivenUser(thang, post));
 
-        assertEquals(post.getMessage(), found.getPost().get(0).getMessage());
-        assertEquals(found.getEmail(), post.getUser().getEmail());
+        //Check if Thang have posted something.
+        assertEquals(post.getMessage(), thang.getPost().get(0).getMessage());
+        assertEquals(thang.getEmail(), post.getUser().getEmail());
 
+        //Now, lets add a comment to Thangs post.
         Comment comment = new Comment();
-        comment.setUser(found2);
+        comment.setUser(hassan);
         comment.setThePost(post);
         comment.setMessage("This is a comment");
 
-        assertTrue(userBean.createPostFromGivenUser(found2, comment));
-        postBean.mergeCommentToPost(post, comment);
+        Comment secondComment = new Comment();
+        secondComment.setUser(hassan);
+        secondComment.setThePost(post);
+        secondComment.setMessage("This is another comment");
 
-        //assertEquals("lol", userBean.findUserByEmail("Lyerno@gmail.com").getPost().get(0).getMessage());
+        Comment thirdComment = new Comment();
+        thirdComment.setUser(hassan);
+        thirdComment.setThePost(post);
+        thirdComment.setMessage("This is the third comment");
+
+
+        //Now, add comment to Thangs post by another user Hassan
+        postBean.mergeCommentToPost(post, comment, secondComment, thirdComment);
+
+
         List<Post> posts = postBean.getAllPosts();
 
         //Check here if the comments and posts are good.
+        assertEquals(4, posts.size());
         assertEquals(comment.getMessage(), posts.get(0).getComments().get(0).getMessage());
-        assertEquals(found2.getFirstname(), posts.get(0).getComments().get(0).getUser().getFirstname());
+        assertEquals(secondComment.getMessage(), posts.get(0).getComments().get(1).getMessage());
+        assertEquals(thirdComment.getMessage(), posts.get(0).getComments().get(2).getMessage());
+        assertEquals(hassan.getFirstname(), posts.get(0).getComments().get(0).getUser().getFirstname());
     }
+
+    @Test
+    public void testfindAllCommentsInOnePost(){
+        Post found = postBean.getAllPosts().get(0);
+        //All the comments, what post does that belongs to? I check here.
+        assertEquals("[This is a comment, This is another comment, This is the third comment]", postBean.findAllCommentsInOnePost(found).toString());
+        assertEquals(3, postBean.findAllCommentsInOnePost(found).size());
+    }
+
+
 
 
 

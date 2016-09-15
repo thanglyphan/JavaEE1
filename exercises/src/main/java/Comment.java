@@ -21,4 +21,8 @@ public class Comment extends Post{
     public Post getThePost() {
         return thePost;
     }
+
+    public String toString(){
+        return getMessage();
+    }
 }
