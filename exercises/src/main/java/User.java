@@ -40,7 +40,7 @@ public class User {
     @OneToOne(fetch = FetchType.EAGER) @NotNull
     private Address address;
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "user", cascade = CascadeType.ALL)
     private List<Post> post;
 
 

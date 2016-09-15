@@ -48,7 +48,7 @@ public class Post {
     @OneToMany
     private List<User> downvotedBy;
 
-    @OneToMany(mappedBy = "thePost")
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "thePost", cascade = CascadeType.ALL)
     private List<Comment> comments;
 
     public Post(){

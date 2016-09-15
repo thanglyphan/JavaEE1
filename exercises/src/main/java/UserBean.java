@@ -18,15 +18,14 @@ public class UserBean{
 
     public UserBean(){}
 
-    public boolean createUser(String fName, String lName, String email, Address adr){
-
+    public void createUser(@NotNull String fName, @NotNull String lName, @NotNull String email, @NotNull Address adr){
         User user = new User();
         user.setFirstname(fName);
         user.setLastname(lName);
         user.setEmail(email);
         user.setAddress(adr);
 
-        return persistInATransaction(adr, user);
+        persistInATransaction(adr, user);
     }
 
     public boolean createPostFromGivenUser(User user, Post post){
@@ -44,20 +43,17 @@ public class UserBean{
         return false;
     }
 
-    private boolean persistInATransaction(Object... obj) {
-        try {
-            for(Object o : obj) {
-                em.persist(o);
-            }
-        } catch (Exception e) {
-            System.out.println("FAILED TRANSACTION: " + e.toString());
-            return false;
+
+    private void persistInATransaction(Object... obj) {
+        for(Object o : obj) {
+            em.persist(o);
         }
-        return true;
     }
+
     public List<User> getUsers(){
         return em.createNamedQuery(User.FIND_ALL).getResultList();
     }
+
     public User findUserByEmail(String email){
 
         List<User> users = em.createNamedQuery(User.FIND_BY_EMAIL).setParameter(1, email).getResultList();
