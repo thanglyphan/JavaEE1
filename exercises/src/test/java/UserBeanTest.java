@@ -1,3 +1,4 @@
+import javafx.geometry.Pos;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
@@ -21,30 +22,16 @@ import static org.junit.Assert.assertTrue;
 
 @RunWith(Arquillian.class)
 public class UserBeanTest {
-    private EntityManagerFactory factory;
-    private EntityManager em;
 
     @Deployment
     public static JavaArchive createTestArchive()
             throws UnsupportedEncodingException {
 
-        return ShrinkWrap.create(JavaArchive.class).addClasses(
-                Address.class,
-                Comment.class,
-                Post.class,
-                User.class,
-                UserBean.class,
-                UserClassConstraints.class,
-                UserClassConstraintsValidator.class,
-                Object.class).addAsResource("META-INF/persistence.xml");
+        return ShrinkWrap.create(JavaArchive.class).addDefaultPackage().addAsResource("META-INF/persistence.xml");
 
     }
-
-
     @EJB
     private UserBean userBean;
-
-
 
     @Test
     public void testUserIsCreated(){
@@ -65,10 +52,23 @@ public class UserBeanTest {
 
         assertEquals(2, userBean.getUsers().size());
     }
+
+
     @Test
     public void testFindUserByEmail(){
         assertEquals("Lyerno@gmail.com", userBean.findUserByEmail("Lyerno@gmail.com").getEmail());
         assertEquals("Lyern52@gmail.com", userBean.findUserByEmail("Lyern52@gmail.com").getEmail());
+    }
+
+    @Test
+    public void testCreatePostFromGivenUser(){
+        User found = userBean.findUserByEmail("Lyern52@gmail.com");
+
+        Post post = new Post();
+        post.setUser(found);
+        post.setMessage("You have one received message");
+
+        assertTrue(userBean.createPostFromGivenUser(found, post));
     }
 
 

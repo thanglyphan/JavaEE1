@@ -5,6 +5,7 @@ import javax.persistence.EntityTransaction;
 import javax.persistence.PersistenceContext;
 import javax.validation.constraints.NotNull;
 import javax.xml.stream.StreamFilter;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -14,7 +15,6 @@ import java.util.List;
 public class UserBean{
     @PersistenceContext(unitName = "MyDB")
     private EntityManager em;
-
 
     public UserBean(){}
 
@@ -29,6 +29,21 @@ public class UserBean{
         return persistInATransaction(adr, user);
     }
 
+    public boolean createPostFromGivenUser(User user, Post post){
+        user.setPost(new ArrayList<>());
+        user.addToPost(post);
+        persistInATransaction(post);
+        em.merge(user);
+
+        User found = findUserByEmail(user.getEmail());
+
+        if(found.getPost().size() > 0){
+            return true;
+        }
+
+        return false;
+    }
+
     private boolean persistInATransaction(Object... obj) {
         try {
             for(Object o : obj) {
@@ -41,8 +56,6 @@ public class UserBean{
         return true;
     }
     public List<User> getUsers(){
-        List<User> results = em.createQuery("SELECT u FROM User u", User.class).getResultList();
-
         return em.createNamedQuery(User.FIND_ALL).getResultList();
     }
     public User findUserByEmail(String email){
