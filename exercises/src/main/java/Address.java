@@ -1,7 +1,8 @@
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
+import javax.persistence.*;
 import javax.persistence.criteria.CriteriaBuilder;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+import java.util.Collection;
 
 /**
  * Created by thang on 06.09.2016.
@@ -11,9 +12,13 @@ public class Address {
     @Id @GeneratedValue
     private Long id;
 
-
+    @NotNull @Size(min = 2, max = 100)
     private String city;
+
+    @NotNull @Size(min = 2, max = 100)
     private String country;
+
+    @NotNull
     private int postcode;
 
     public String getCity() {
@@ -39,4 +44,6 @@ public class Address {
     public void setPostcode(int postcode) {
         this.postcode = postcode;
     }
+
+
 }

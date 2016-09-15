@@ -14,7 +14,7 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 public @interface UserClassConstraints {
-    String message() default "Invalid email";
+    String message() default "invalid@email.com";
     Class<?>[] groups() default {};
     Class<? extends Payload>[] payload() default {};
 }

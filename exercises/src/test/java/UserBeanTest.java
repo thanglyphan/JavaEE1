@@ -9,7 +9,10 @@ import javax.ejb.EJB;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import java.io.UnsupportedEncodingException;
+import java.util.Iterator;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -24,11 +27,23 @@ public class UserBeanTest {
     @Deployment
     public static JavaArchive createTestArchive()
             throws UnsupportedEncodingException {
-        return ShrinkWrap.create(JavaArchive.class).addClass(UserBean.class);
+
+        return ShrinkWrap.create(JavaArchive.class).addClasses(
+                Address.class,
+                Comment.class,
+                Post.class,
+                User.class,
+                UserBean.class,
+                UserClassConstraints.class,
+                UserClassConstraintsValidator.class,
+                Object.class).addAsResource("META-INF/persistence.xml");
+
     }
+
 
     @EJB
     private UserBean userBean;
+
 
 
     @Test
@@ -39,10 +54,24 @@ public class UserBeanTest {
         adr.setCountry("Norway");
         adr.setPostcode(0372);
 
-        userBean.createUser("Thang", "Phan", "Lyern52@gmail.com", adr);
+        Address adr2 = new Address();
+        adr2.setCity("Oslo");
+        adr2.setCountry("Norway");
+        adr2.setPostcode(0372);
+
 
         assertTrue(userBean.createUser("Thang", "Phan", "Lyern52@gmail.com", adr));
+        assertTrue(userBean.createUser("Thango", "Phano", "Lyerno@gmail.com", adr2));
+
+        assertEquals(2, userBean.getUsers().size());
     }
+    @Test
+    public void testFindUserByEmail(){
+        assertEquals("Lyerno@gmail.com", userBean.findUserByEmail("Lyerno@gmail.com").getEmail());
+        assertEquals("Lyern52@gmail.com", userBean.findUserByEmail("Lyern52@gmail.com").getEmail());
+    }
+
+
 
 
 }

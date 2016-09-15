@@ -7,14 +7,15 @@ import java.util.List;
 /**
  * Created by thang on 06.09.2016.
  */
-@UserClassConstraints
 @Entity
 @NamedQueries(value = {
         @NamedQuery(name = User.FIND_ALL_USER_COUNTRIES, query = "SELECT a.address.country FROM User a"),
         @NamedQuery(name = User.FIND_ALL, query = "SELECT a FROM User a"),
         @NamedQuery(name = User.FIND_ALL_USER_IN_COUNTRY, query = "SELECT a FROM User a WHERE a.address.country LIKE ?1"),
-        @NamedQuery(name = User.FIND_TOP_POSTERS, query = "SELECT a FROM User a WHERE a.post.size >= ?1 order by post.size desc ")
+        @NamedQuery(name = User.FIND_TOP_POSTERS, query = "SELECT a FROM User a WHERE a.post.size >= ?1 order by post.size desc "),
+        @NamedQuery(name = User.FIND_BY_EMAIL, query = "SELECT a FROM User a WHERE a.email = ?1")
 })
+//@UserClassConstraints
 public class User {
     @Id @GeneratedValue
     private long userId;
@@ -23,6 +24,7 @@ public class User {
     public static final String FIND_ALL = "User.find_all";
     public static final String FIND_ALL_USER_IN_COUNTRY = "User.find_all_user_in_country";
     public static final String FIND_TOP_POSTERS = "User.find_top_posters";
+    public static final String FIND_BY_EMAIL = "User.find_by_email";
 
     @NotNull @Size(min = 2 , max = 100) @Pattern(regexp = "^[a-zA-Z ]*$")
     private String firstname;
@@ -91,7 +93,7 @@ public class User {
     }
 
     public String toString(){
-        return getFirstname() + " " + getLastname() + "\n" + getEmail();
+        return getFirstname() + " " + getLastname();
     }
 
 }

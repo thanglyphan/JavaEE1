@@ -10,9 +10,9 @@ public class UserClassConstraintsValidator implements ConstraintValidator<UserCl
    }
    @Override
    public boolean isValid(User value, ConstraintValidatorContext context) {
-      if(value.getEmail() == null || value.getEmail().contains(" ")){
+      if(value.getEmail().contains(" ")){
          return false;
       }
-      return value.getEmail() != null;
+      return !value.getEmail().contains(" ");
    }
 }

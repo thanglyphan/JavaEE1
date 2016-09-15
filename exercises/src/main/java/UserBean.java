@@ -5,6 +5,7 @@ import javax.persistence.EntityTransaction;
 import javax.persistence.PersistenceContext;
 import javax.validation.constraints.NotNull;
 import javax.xml.stream.StreamFilter;
+import java.util.List;
 
 /**
  * Created by thang on 13.09.2016.
@@ -12,22 +13,21 @@ import javax.xml.stream.StreamFilter;
 @Stateless
 public class UserBean{
     @PersistenceContext(unitName = "MyDB")
-    private EntityManagerFactory entityManagerFactory;
-    private EntityManager em = entityManagerFactory.createEntityManager();
+    private EntityManager em;
 
 
     public UserBean(){}
 
     public boolean createUser(String fName, String lName, String email, Address adr){
+
         User user = new User();
         user.setFirstname(fName);
         user.setLastname(lName);
-        user.setAddress(adr);
         user.setEmail(email);
-        System.out.println(em);
-        return persistInATransaction(user, adr);
-    }
+        user.setAddress(adr);
 
+        return persistInATransaction(adr, user);
+    }
 
     private boolean persistInATransaction(Object... obj) {
         try {
@@ -38,11 +38,17 @@ public class UserBean{
             System.out.println("FAILED TRANSACTION: " + e.toString());
             return false;
         }
-
         return true;
     }
-    public boolean isRegistered(@NotNull Long userId){
-        User user = em.find(User.class, userId);
-        return user != null;
+    public List<User> getUsers(){
+        List<User> results = em.createQuery("SELECT u FROM User u", User.class).getResultList();
+
+        return em.createNamedQuery(User.FIND_ALL).getResultList();
+    }
+    public User findUserByEmail(String email){
+
+        List<User> users = em.createNamedQuery(User.FIND_BY_EMAIL).setParameter(1, email).getResultList();
+
+        return users.get(0);
     }
 }

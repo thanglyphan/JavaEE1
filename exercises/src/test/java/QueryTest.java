@@ -31,6 +31,7 @@ public class QueryTest {
         factory.close();
     }
 
+
     private boolean persistInATransaction(Object... obj) {
         EntityTransaction tx = em.getTransaction();
         tx.begin();
