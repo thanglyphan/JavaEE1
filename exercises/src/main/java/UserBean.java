@@ -1,3 +1,5 @@
+import javax.ejb.Lock;
+import javax.ejb.LockType;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -12,7 +14,7 @@ import java.util.List;
  * Created by thang on 13.09.2016.
  */
 @Stateless
-public class UserBean{
+public class UserBean {
     @PersistenceContext(unitName = "MyDB")
     private EntityManager em;
 
@@ -28,6 +30,7 @@ public class UserBean{
         persistInATransaction(adr, user);
     }
 
+
     public boolean createPostFromGivenUser(User user, Post post){
         user.setPost(new ArrayList<>());
         user.addToPost(post);
@@ -40,6 +43,10 @@ public class UserBean{
             return true;
         }
         return false;
+    }
+
+    public void run(){
+
     }
 
 

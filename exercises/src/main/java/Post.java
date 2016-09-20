@@ -150,6 +150,10 @@ public class Post {
         getComments().add(a);
     }
 
+    public boolean deleteComments(){
+        this.comments.clear();
+        return true;
+    }
     public String toString(){
         return getMessage();
     }

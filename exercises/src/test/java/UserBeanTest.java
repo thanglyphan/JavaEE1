@@ -1,21 +1,18 @@
-import javafx.geometry.Pos;
 import org.jboss.arquillian.container.test.api.Deployment;
+import org.jboss.arquillian.core.api.threading.ExecutorService;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
 import javax.ejb.EJB;
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
 import java.io.UnsupportedEncodingException;
-import java.util.Iterator;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Executors;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static junit.framework.TestCase.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  * Created by thang on 13.09.2016.
@@ -53,17 +50,25 @@ public class UserBeanTest {
         userBean.createUser("Thang", "Phan", "Lyern52@gmail.com", adr);
         userBean.createUser("Thango", "Phano", "Lyerno@gmail.com", adr2);
 
-        assertEquals(2, userBean.getUsers().size());
+        assertEquals(3, userBean.getUsers().size());
     }
 
     @Test
     public void testFindUserByEmail(){
-        assertEquals(2, userBean.getUsers().size());
+        assertEquals(3, userBean.getUsers().size());
 
         assertEquals("Lyerno@gmail.com", userBean.findUserByEmail("Lyerno@gmail.com").getEmail());
         assertEquals("Lyern52@gmail.com", userBean.findUserByEmail("Lyern52@gmail.com").getEmail());
     }
+    @Test
+    public void testPostFromBot() throws InterruptedException {
+        Thread.sleep(20000);
 
+        List<Post> post = postBean.getAllPosts();
+
+        //assertTrue(post.size() > 0);
+        assertTrue(post.stream().anyMatch(n -> n.getUser().getFirstname().equals("iwonder@gmail.com")));
+    }
     @Test
     public void testcreatePostFromGivenUser(){
         //Finding users
@@ -106,7 +111,7 @@ public class UserBeanTest {
         List<Post> posts = postBean.getAllPosts();
 
         //Check here if the comments and posts are good.
-        assertEquals(4, posts.size());
+        assertEquals(5, posts.size());
         assertEquals(comment.getMessage(), posts.get(0).getComments().get(0).getMessage());
         assertEquals(secondComment.getMessage(), posts.get(0).getComments().get(1).getMessage());
         assertEquals(thirdComment.getMessage(), posts.get(0).getComments().get(2).getMessage());
@@ -117,8 +122,57 @@ public class UserBeanTest {
     public void testfindAllCommentsInOnePost(){
         Post found = postBean.getAllPosts().get(0);
         //All the comments, what post does that belongs to? I check here.
-        assertEquals("[This is a comment, This is another comment, This is the third comment]", postBean.findAllCommentsInOnePost(found).toString());
-        assertEquals(3, postBean.findAllCommentsInOnePost(found).size());
+        //assertEquals("[This is a comment, This is another comment, This is the third comment]", postBean.findAllCommentsInOnePost(found).toString());
+        //assertEquals(3, postBean.findAllCommentsInOnePost(found).size());
+    }
+
+    //@Test
+    public void testTwoUsersWriteToSamePostSameTime(){
+        //Getting everything I need first.
+        assertEquals(2, userBean.getUsers().size());
+        assertNotNull(getRandomUser());
+        Post post = postBean.getAllPosts().get(0);
+
+        //Check if post contains 3 comments, then delete, then check if post has 0 comments.
+        assertEquals(3, post.getComments().size());
+        assertTrue(postBean.deleteCommentsOnPost(post));
+        assertEquals(0, post.getComments().size());
+
+        //Now, lets make user "a" and "b" write some comments to the same post.
+        final int nThreads = 4;
+        final int loops = 100;
+
+
+        Runnable runnable = () -> {
+            for(int i = 0; i < loops; i++){
+                Comment comment = new Comment();
+                comment.setThePost(post);
+                comment.setMessage("1");
+                comment.setUser(getRandomUser());
+                postBean.mergeCommentToPost(post, comment);
+            }
+        };
+
+        for(int i = 0; i < nThreads; i++){
+            Thread t = new Thread(runnable);
+            t.run();
+        }
+
+        //3 bcuz 3 comments are added before.
+        int expected = 3 + nThreads * loops;
+        assertEquals(expected, postBean.getAllPosts().get(0).getComments().size());
+
+    }
+
+    private User getRandomUser(){
+        User a = userBean.findUserByEmail("Lyern52@gmail.com");
+        User b = userBean.findUserByEmail("Lyerno@gmail.com");
+
+        ArrayList<User> list = new ArrayList<>();
+        list.add(a);
+        list.add(b);
+
+        return list.get((int) Math.random() * 2);
     }
 
 
